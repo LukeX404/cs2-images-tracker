@@ -1,6 +1,6 @@
 {
   "name": "cs2-images-tracker",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "description": "Counter Strike 2 Images Tracker",
   "main": "dist/index.js",
   "scripts": {
@@ -11,11 +11,10 @@
   "keywords": [
     "counter-strike-2",
     "counter-strike",
-    "counter",
-    "strike",
     "cs2",
     "images",
-    "tracker"
+    "tracker",
+    "cs2-images-tracker"
   ],
   "license": "MIT",
   "dependencies": {
