@@ -9,7 +9,7 @@ export class VPKDowloaderService {
     private depotId: number = 2347770;
     private temp: string = "./temp";
 
-    constructor(private user: CustomSteamUser) {}
+    constructor(private user: CustomSteamUser) { }
 
     async downloadVPKDir(manifest: any): Promise<vpk | null> {
         const dirFile = manifest.manifest.files.find((file: any) =>
@@ -76,7 +76,7 @@ export class VPKDowloaderService {
 
         for (let i = 0; i < requiredIndices.length; i++) {
             const archiveIndex = requiredIndices[i];
-            const paddedIndex = archiveIndex.toString().padStart(3, '0'); 
+            const paddedIndex = archiveIndex.toString().padStart(3, '0');
             const fileName = `pak01_${paddedIndex}.vpk`;
 
             const file = manifest.manifest.files.find((f: any) =>

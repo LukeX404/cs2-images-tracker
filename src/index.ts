@@ -1,5 +1,6 @@
 /**
- * This code is from csfloat and ByMykel repo. I made small changes to TS.
+ * This code is from csfloat and ByMykel repo. 
+ * I made small changes to TS.
  * https://github.com/ByMykel/counter-strike-image-tracker
  * https://github.com/csfloat/cs-files/blob/5ff0f212ff0dc2b6f6380fc6d1a93121c2b9c2cd/index.js
 */
