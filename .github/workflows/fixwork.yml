@@ -1,22 +1,25 @@
-name: Configurar Git User
+name: Create Folder and Commit
 
 on:
-  workflow_dispatch:
+  workflow_dispatch:  # Permite disparar o workflow manualmente
 
 jobs:
-  setup-git:
+  create_and_commit:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write  # Permite modificar o conteúdo do repositório
+
     steps:
-      - name: Verificar repositório
-        uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v2
 
-      - name: Configurar Nome e E-mail no Git
+      - name: Create directory and file
         run: |
-          git config --global user.name "LukeX404"
-          git config --global user.email "lucasneko25@gmail.com"
-        shell: bash
+          mkdir fix_testes
+          echo "Test file content" > fix_testes/test.txt
 
-      - name: Verificar Configuração
-        run: git config --global --list | grep user
-        shell: bash
+      - name: Commit & push changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "Add fix_testes folder and test file"
