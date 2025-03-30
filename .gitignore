@@ -2,9 +2,6 @@
 /dist
 temp
 exceptions.txt
-secrets.txt
-accounts.json
-accounts.txt
-.env
-.env.development
-.env.production
+secrets.*
+accounts.*
+.env.*

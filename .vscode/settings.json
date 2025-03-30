@@ -1,16 +1,4 @@
 {
-    "material-icon-theme.files.associations": {
-      "settings.json": "Raml",
-      "config.json": "Raml",
-      "*.lang.json": "i18n",
-      "lang.json": "i18n",
-      "gitignore": "Git",
-      "accounts.txt": "settings",
-      "Source2Viewer-CLI": "settings",
-      "libTinyEXR.Native.so": "settings",
-      "libSkiaSharp.so": "settings",
-    },
-    "material-icon-theme.folders.theme": "specific",
     "explorer.fileNesting.enabled": true,
     "explorer.fileNesting.patterns": {
       ".env": ".env.development, .env.production, .env.test, .env.example",
