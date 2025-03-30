@@ -16,11 +16,6 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Configurar usuário Git
-        run: |
-          git config --global user.name "LukeX404"
-          git config --global user.email "lucasneko25@gmail.com"
-
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
@@ -51,4 +46,4 @@ jobs:
       - name: Commit & push changes
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          commit_message: "📄 Manifestx: ${{ steps.manifestId.outputs.content }}"
+          commit_message: "📄 Manifest: ${{ steps.manifestId.outputs.content }}"
