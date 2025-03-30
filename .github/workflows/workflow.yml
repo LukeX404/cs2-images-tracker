@@ -16,6 +16,11 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
+      - name: Configurar usuário Git
+        run: |
+          git config --global user.name "LukeX404"
+          git config --global user.email "lucasneko25@gmail.com"
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
@@ -43,29 +48,7 @@ jobs:
         with:
           path: ./public/static/manifestId.txt
 
-      - name: Check if the manifestId has changed
-        id: check_manifest
-        run: |
-          previous_manifest=$(git log -1 --pretty=%B | grep -oP '(?<=Manifest: ).*')
-          current_manifest="${{ steps.manifestId.outputs.content }}"
-          echo "Previous Manifest: $previous_manifest"
-          echo "Current Manifest: $current_manifest"
-
-          if [ "$previous_manifest" == "$current_manifest" ]; then
-            echo "Manifest ID has not changed, skipping commit."
-            echo "skip_commit=true" >> $GITHUB_ENV
-          else
-            echo "skip_commit=false" >> $GITHUB_ENV
-          fi
-
       - name: Commit & push changes
-        if: env.skip_commit != 'true'
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: "📄 Manifest: ${{ steps.manifestId.outputs.content }}"
-
-      - name: Commit with 'Already exists' message
-        if: env.skip_commit == 'true'
-        uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          commit_message: "📄 Manifest: Already exists"
