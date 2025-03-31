@@ -5,3 +5,5 @@ exceptions.txt
 secrets.*
 accounts.*
 .env.*
+*.rar
+*.zip
