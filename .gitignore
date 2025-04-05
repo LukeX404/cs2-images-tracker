@@ -7,3 +7,4 @@ accounts.*
 .env.*
 *.rar
 *.zip
+default_generated.json
