@@ -1,10 +1,10 @@
 import fs from "fs";
 
 export class FileUtils {
-    static createDirectories(directories: string[]) {
-        directories.forEach(directory => {
-            if (!fs.existsSync(directory)) {
-                fs.mkdirSync(directory);
+    static createDirectories(directories: string[]): void {
+        directories.forEach(dir => {
+            if (!fs.existsSync(dir)) {
+                fs.mkdirSync(dir, { recursive: true });
             }
         });
     }

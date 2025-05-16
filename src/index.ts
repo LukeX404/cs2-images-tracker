@@ -11,16 +11,14 @@ import { SteamService } from "./services/SteamService";
 import { VPKDowloaderService } from "./services/VPKDowloaderService";
 import { FileUtils } from "./utils/FileUtils";
 
-if (process.argv.length !== 4) {
-    console.error(`⚠️ Missing input arguments, expected 4 got ${process.argv.length}`);
+if (process.argv.length < 4 || process.argv.length > 5) {
+    console.error("Usage: ts-node index.ts <username> <password> [--force]");
     process.exit(1);
 }
 
-const directories = ["./public/static", "./temp"];
-FileUtils.createDirectories(directories);
+FileUtils.createDirectories(["./public/static", "./temp"]);
 
 const user = new SteamUser() as CustomSteamUser;
-const vpkDownloader = new VPKDowloaderService(user);
-const steamService = new SteamService(user, vpkDownloader);
+const steamService = new SteamService(user, new VPKDowloaderService(user));
 
-steamService.login(process.argv[2], process.argv[3]);
+steamService.login(process.argv[2], process.argv[3], process.argv[4] === "--force");

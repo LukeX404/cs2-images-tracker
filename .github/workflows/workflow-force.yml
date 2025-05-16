@@ -1,0 +1,50 @@
+name: Download CS2 Images (Force)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  download:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Download new game files
+        run: npm run dev '${{ secrets.USERNAME }}' '${{ secrets.PASSWORD }}'
+
+      - name: Run Decompiler for pak01_dir.vpk with ValveResourceFormat 11.1
+        run: |
+          if [ -f "./temp/pak01_dir.vpk" ]; then
+            rm -fr ./exceptions.txt
+            chmod +x ./Source2Viewer-CLI
+            ./Source2Viewer-CLI -i "./temp/pak01_dir.vpk" -o "./public/static" -e "vtex_c" -d -f "panorama/images/econ"
+          else
+            echo "pak01_dir.vpk not found, skipping decompilation"
+          fi
+
+      - name: Generate default_generated.json
+        run: npm run list
+
+      - name: Read manifestId.txt
+        id: manifestId
+        uses: juliangruber/read-file-action@v1
+        with:
+          path: ./public/static/manifestId.txt
+
+      - name: Commit & push changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "📄 Manifest: ${{ steps.manifestId.outputs.content }}"

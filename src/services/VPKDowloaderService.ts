@@ -5,35 +5,36 @@ import { CustomSteamUser } from "../models/SteamUserModel";
 const delay = promisify(setTimeout);
 
 export class VPKDowloaderService {
-    private appId: number = 730;
-    private depotId: number = 2347770;
-    private temp: string = "./temp";
+    private appId = 730;
+    private depotId = 2347770;
+    private temp = "./temp";
 
-    constructor(private user: CustomSteamUser) { }
+    constructor(private user: CustomSteamUser) {}
 
-    async downloadVPKDir(manifest: any): Promise<vpk | null> {
-        const dirFile = manifest.manifest.files.find((file: any) =>
+    async downloadVPKDir(manifest: any): Promise<any> {
+        const dirFile = manifest.files.find((file: any) => 
             file.filename.endsWith("csgo\\pak01_dir.vpk")
         );
 
         console.log("⏬ Downloading vpk dir...");
-
+        
         try {
             await this.user.downloadFile(this.appId, this.depotId, dirFile, `${this.temp}/pak01_dir.vpk`);
             console.log("✅ Successfully downloaded pak01_dir.vpk");
+            
+            const vpkDir = new vpk(`${this.temp}/pak01_dir.vpk`);
+            vpkDir.load();
+            return vpkDir;
+            
         } catch (error) {
             console.error(`❌ Failed to download pak01_dir.vpk: ${error}`);
             return null;
         }
-
-        const vpkDir = new vpk(`${this.temp}/pak01_dir.vpk`);
-        vpkDir.load();
-        return vpkDir;
     }
 
     getRequiredVPKFiles(vpkDir: any): number[] {
         const requiredIndices: number[] = [];
-        const vpkFolders: string[] = [
+        const vpkFolders = [
             "panorama/images/econ/characters",
             "panorama/images/econ/default_generated",
             "panorama/images/econ/music_kits",
@@ -50,15 +51,10 @@ export class VPKDowloaderService {
         ];
 
         for (const fileName of vpkDir.files) {
-            for (const folder of vpkFolders) {
-                if (fileName.startsWith(folder)) {
-                    const archiveIndex = vpkDir.tree[fileName].archiveIndex;
-
-                    if (!requiredIndices.includes(archiveIndex)) {
-                        requiredIndices.push(archiveIndex);
-                    }
-
-                    break;
+            if (vpkFolders.some(folder => fileName.startsWith(folder))) {
+                const archiveIndex = vpkDir.tree[fileName].archiveIndex;
+                if (!requiredIndices.includes(archiveIndex)) {
+                    requiredIndices.push(archiveIndex);
                 }
             }
         }
@@ -66,36 +62,25 @@ export class VPKDowloaderService {
         return requiredIndices.sort((a, b) => a - b);
     }
 
-    async downloadVPKArchives(manifest: any, vpkDir: any) {
-        if (!vpkDir) {
-            console.error("⚠️ Skipping VPK archive downloads due to previous failure.");
-            return;
-        }
+    async downloadVPKArchives(manifest: any, vpkDir: any): Promise<void> {
+        if (!vpkDir) return;
 
         const requiredIndices = this.getRequiredVPKFiles(vpkDir);
-
+        
         for (let i = 0; i < requiredIndices.length; i++) {
             const archiveIndex = requiredIndices[i];
-            const paddedIndex = archiveIndex.toString().padStart(3, '0');
-            const fileName = `pak01_${paddedIndex}.vpk`;
+            const fileName = `pak01_${archiveIndex.toString().padStart(3, '0')}.vpk`;
+            const file = manifest.files.find((f: any) => f.filename.endsWith(fileName));
 
-            const file = manifest.manifest.files.find((f: any) =>
-                f.filename.endsWith(fileName)
-            );
-            const filePath = `${this.temp}/${fileName}`;
-
-            const status = `[${i + 1}/${requiredIndices.length}]`;
-
-            console.log(`${status} Downloading ${fileName}`);
-
+            console.log(`[${i + 1}/${requiredIndices.length}] Downloading ${fileName}`);
+            
             try {
-                await this.user.downloadFile(this.appId, this.depotId, file, filePath);
+                await this.user.downloadFile(this.appId, this.depotId, file, `${this.temp}/${fileName}`);
                 console.log(`✅ Successfully downloaded ${fileName}`);
+                await delay(3000);
             } catch (error) {
                 console.error(`❌ Failed to download ${fileName}: ${error}`);
             }
-
-            await delay(3000);
         }
     }
 }
