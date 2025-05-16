@@ -5,27 +5,36 @@ import { CustomSteamUser } from "../models/SteamUserModel";
 const delay = promisify(setTimeout);
 
 export class VPKDowloaderService {
-    private appId = 730;
-    private depotId = 2347770;
-    private temp = "./temp";
+    private appId: number = 730;
+    private depotId: number = 2347770;
+    private temp: string = "./temp";
 
-    constructor(private user: CustomSteamUser) {}
+    constructor(private user: CustomSteamUser) { }
 
-    async downloadVPKDir(manifest: any): Promise<any> {
-        const dirFile = manifest.files.find((file: any) => 
-            file.filename.endsWith("csgo\\pak01_dir.vpk")
+    async downloadVPKDir(manifest: any): Promise<vpk | null> {
+        if (!manifest?.manifest?.files) {
+            console.error("❌ Invalid manifest structure - missing 'manifest.files'");
+            return null;
+        }
+
+        const dirFile = manifest.manifest.files.find((file: any) =>
+            file.filename?.endsWith?.("csgo\\pak01_dir.vpk")
         );
 
+        if (!dirFile) {
+            console.error("❌ pak01_dir.vpk not found in manifest");
+            return null;
+        }
+
         console.log("⏬ Downloading vpk dir...");
-        
+
         try {
             await this.user.downloadFile(this.appId, this.depotId, dirFile, `${this.temp}/pak01_dir.vpk`);
             console.log("✅ Successfully downloaded pak01_dir.vpk");
-            
+
             const vpkDir = new vpk(`${this.temp}/pak01_dir.vpk`);
             vpkDir.load();
             return vpkDir;
-            
         } catch (error) {
             console.error(`❌ Failed to download pak01_dir.vpk: ${error}`);
             return null;
@@ -34,7 +43,7 @@ export class VPKDowloaderService {
 
     getRequiredVPKFiles(vpkDir: any): number[] {
         const requiredIndices: number[] = [];
-        const vpkFolders = [
+        const vpkFolders: string[] = [
             "panorama/images/econ/characters",
             "panorama/images/econ/default_generated",
             "panorama/images/econ/music_kits",
@@ -51,10 +60,13 @@ export class VPKDowloaderService {
         ];
 
         for (const fileName of vpkDir.files) {
-            if (vpkFolders.some(folder => fileName.startsWith(folder))) {
-                const archiveIndex = vpkDir.tree[fileName].archiveIndex;
-                if (!requiredIndices.includes(archiveIndex)) {
-                    requiredIndices.push(archiveIndex);
+            for (const folder of vpkFolders) {
+                if (fileName.startsWith(folder)) {
+                    const archiveIndex = vpkDir.tree[fileName].archiveIndex;
+                    if (!requiredIndices.includes(archiveIndex)) {
+                        requiredIndices.push(archiveIndex);
+                    }
+                    break;
                 }
             }
         }
@@ -62,25 +74,46 @@ export class VPKDowloaderService {
         return requiredIndices.sort((a, b) => a - b);
     }
 
-    async downloadVPKArchives(manifest: any, vpkDir: any): Promise<void> {
-        if (!vpkDir) return;
+    async downloadVPKArchives(manifest: any, vpkDir: any) {
+        if (!vpkDir) {
+            console.error("⚠️ Skipping VPK archive downloads due to previous failure.");
+            return;
+        }
+
+        if (!manifest?.manifest?.files) {
+            console.error("❌ Invalid manifest structure - missing 'manifest.files'");
+            return;
+        }
 
         const requiredIndices = this.getRequiredVPKFiles(vpkDir);
-        
+
         for (let i = 0; i < requiredIndices.length; i++) {
             const archiveIndex = requiredIndices[i];
-            const fileName = `pak01_${archiveIndex.toString().padStart(3, '0')}.vpk`;
-            const file = manifest.files.find((f: any) => f.filename.endsWith(fileName));
+            const paddedIndex = archiveIndex.toString().padStart(3, '0');
+            const fileName = `pak01_${paddedIndex}.vpk`;
 
-            console.log(`[${i + 1}/${requiredIndices.length}] Downloading ${fileName}`);
-            
+            const file = manifest.manifest.files.find((f: any) =>
+                f.filename?.endsWith?.(fileName)
+            );
+
+            if (!file) {
+                console.error(`❌ File ${fileName} not found in manifest`);
+                continue;
+            }
+
+            const filePath = `${this.temp}/${fileName}`;
+            const status = `[${i + 1}/${requiredIndices.length}]`;
+
+            console.log(`${status} Downloading ${fileName}`);
+
             try {
-                await this.user.downloadFile(this.appId, this.depotId, file, `${this.temp}/${fileName}`);
+                await this.user.downloadFile(this.appId, this.depotId, file, filePath);
                 console.log(`✅ Successfully downloaded ${fileName}`);
-                await delay(3000);
             } catch (error) {
                 console.error(`❌ Failed to download ${fileName}: ${error}`);
             }
+
+            await delay(3000);
         }
     }
 }
