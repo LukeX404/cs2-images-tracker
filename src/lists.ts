@@ -7,7 +7,7 @@ const outputPath = path.join(outputDir, 'default_generated.json');
 
 try {
   if (!fs.existsSync(directoryPath)) {
-    console.error('❌ Diretório não encontrado:', directoryPath);
+    console.error('❌ Directory not found:', directoryPath);
     process.exit(1);
   }
 
@@ -18,7 +18,7 @@ try {
   }
 
   fs.writeFileSync(outputPath, JSON.stringify(files, null, 2));
-  console.log('✅ Arquivo default_generated.json criado com sucesso!');
+  console.log('✅ default_generated.json file created successfully!');
 } catch (err) {
   console.error('Erro:', err instanceof Error ? err.message : err);
 }
