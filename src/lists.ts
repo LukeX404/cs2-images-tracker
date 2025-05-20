@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 
 const directoryPath = path.join(__dirname, '..', 'public', 'static', 'panorama', 'images', 'econ', 'default_generated');
-const outputDir = path.join(__dirname, '..', 'static');
+const outputDir = path.join(__dirname, '..', 'public', 'static',);
 const outputPath = path.join(outputDir, 'default_generated.json');
 
 try {
