@@ -11,7 +11,7 @@ export class SteamService {
     constructor(
         private user: CustomSteamUser,
         private vpkDownloader: VPKDowloaderService
-    ) {}
+    ) { }
 
     async login(accountName: string, password: string, force = false): Promise<void> {
         console.log("🔑 Logging into Steam...");
